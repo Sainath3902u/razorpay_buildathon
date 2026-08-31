@@ -1,0 +1,73 @@
+{
+  "dataset_summary": {
+    "total_rows": 100000,
+    "unique_customers": 4916,
+    "unique_transactions": 100000,
+    "unique_orders": 30000,
+    "unique_subscriptions": 1884,
+    "unique_invoices": 479,
+    "unique_mandates": 1741,
+    "unique_payment_methods": 3035,
+    "unique_products": 500,
+    "date_range": {
+      "start": "2026-01-01T00:00:37",
+      "end": "2026-08-30T23:55:44"
+    }
+  },
+  "financial_statistics": {
+    "total_transaction_volume": 2098931213.0,
+    "mean_transaction_amount": 20989.31,
+    "median_transaction_amount": 2999.0,
+    "max_transaction_amount": 240000.0
+  },
+  "distributions": {
+    "transaction_status_pct": {
+      "SUCCESS": 83.81,
+      "FAILED": 11.9,
+      "PENDING": 4.29
+    },
+    "payment_method_pct": {
+      "UPI": 65.85,
+      "CARD": 19.15,
+      "NETBANKING": 8.38,
+      "MANDATE": 6.62
+    }
+  },
+  "missing_value_percentages": {
+    "customer_id": 0.0,
+    "transaction_id": 0.0,
+    "order_id": 0.0,
+    "timestamp": 0.0,
+    "amount": 0.0,
+    "transaction_status": 0.0,
+    "payment_method": 0.0,
+    "bank": 0.0,
+    "failure_reason": 90.21,
+    "checkout_started": 0.0,
+    "checkout_completed": 0.0,
+    "cart_value": 0.0,
+    "subscription_id": 84.54,
+    "subscription_status": 84.54,
+    "subscription_amount": 84.54,
+    "renewal_date": 84.54,
+    "invoice_id": 88.03,
+    "invoice_amount": 88.03,
+    "invoice_due_date": 88.03,
+    "invoice_status": 88.03,
+    "mandate_id": 88.77,
+    "mandate_status": 88.77,
+    "retry_count": 88.77,
+    "payment_method_id": 0.0,
+    "payment_method_expiry": 0.0,
+    "product_id": 0.0,
+    "product_category": 0.0,
+    "product_price": 0.0,
+    "promise_date": 96.63,
+    "promise_status": 96.63
+  },
+  "integrity_checks": {
+    "no_duplicate_transaction_ids": true,
+    "no_negative_amounts": true,
+    "exact_columns_verified": true
+  }
+}
