@@ -6,7 +6,7 @@ def create_audit_event(
     agent_decision,
     policy_result,
     action_result,
-    recovered_amount
+    recovered_amount,
 ):
 
     return {
@@ -23,9 +23,15 @@ def create_audit_event(
         "opportunity_type":
             opportunity.opportunity_type,
 
-        "agent_diagnosis":
+        "source_detector":
+            opportunity.source_detector,
+
+        "amount_at_risk":
+            opportunity.amount_at_risk,
+
+        "agent_action":
             agent_decision.get(
-                "diagnosis"
+                "recommended_action"
             ),
 
         "agent_confidence":
@@ -33,34 +39,33 @@ def create_audit_event(
                 "confidence"
             ),
 
-        "recommended_action":
-            agent_decision.get(
-                "recommended_action"
-            ),
-
         "policy_allowed":
             policy_result.get(
                 "allowed"
             ),
 
-        "policy_reason":
-            policy_result.get(
-                "reason"
-            ),
-
-        "action":
+        "executed_action":
             action_result.get(
                 "action"
             ),
 
-        "action_status":
+        "execution_status":
             action_result.get(
                 "status"
             ),
 
-        "amount_at_risk":
-            opportunity.amount_at_risk,
+        "recovered":
+            action_result.get(
+                "recovered",
+                False
+            ),
 
         "recovered_amount":
-            recovered_amount
+            recovered_amount,
+
+        "recovery_eligible":
+            opportunity.recovery_eligible,
+
+        "recovery_reason":
+            opportunity.recovery_reason,
     }

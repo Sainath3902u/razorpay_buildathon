@@ -7,6 +7,7 @@ def calculate_recovery(
         "recovered",
         False
     ):
+
         return 0.0
 
     return round(

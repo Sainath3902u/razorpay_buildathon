@@ -1,26 +1,25 @@
 def execute_action(
     action: str,
-    probability: float,
     recovery_eligible: bool = True,
 ):
-    """
-    Simulate execution of a revenue recovery action.
-
-    IMPORTANT:
-    This does not perform a real payment.
-
-    The recovery_eligible flag represents synthetic
-    ground truth generated for the buildathon.
-    """
 
     recoverable_actions = {
+
         "WAIT_AND_RETRY",
         "RETRY_PAYMENT",
+        "SEND_CHECKOUT_RECOVERY",
+        "RETRY_SUBSCRIPTION_PAYMENT",
+        "UPDATE_PAYMENT_METHOD",
+        "SEND_RECEIVABLES_REMINDER",
+        "RETRY_MANDATE",
+        "FOLLOW_UP_PROMISE",
+        "SEND_HINGLISH_RECOVERY_MESSAGE",
     }
 
-    # ---------------------------------------------------------
+
+    # --------------------------------------------------------
     # Non-recovery actions
-    # ---------------------------------------------------------
+    # --------------------------------------------------------
 
     if action not in recoverable_actions:
 
@@ -30,14 +29,14 @@ def execute_action(
             "success": False,
             "recovered": False,
             "message": (
-                "Action executed, but this action "
-                "does not directly recover payment."
+                "Action executed as a simulation."
             )
         }
 
-    # ---------------------------------------------------------
-    # Ground-truth recovery check
-    # ---------------------------------------------------------
+
+    # --------------------------------------------------------
+    # Ground truth
+    # --------------------------------------------------------
 
     if not recovery_eligible:
 
@@ -47,22 +46,55 @@ def execute_action(
             "success": False,
             "recovered": False,
             "message": (
-                "Recovery was not eligible for "
-                "this synthetic scenario."
+                "Synthetic ground truth indicates "
+                "that this opportunity is not "
+                "eligible for automatic recovery."
             )
         }
 
-    # ---------------------------------------------------------
-    # Eligible recovery
-    # ---------------------------------------------------------
+
+    # --------------------------------------------------------
+    # Success
+    # --------------------------------------------------------
+
+    messages = {
+
+        "WAIT_AND_RETRY":
+            "Payment retry successfully simulated.",
+
+        "RETRY_PAYMENT":
+            "Payment retry successfully simulated.",
+
+        "SEND_CHECKOUT_RECOVERY":
+            "Checkout recovery intervention simulated.",
+
+        "RETRY_SUBSCRIPTION_PAYMENT":
+            "Subscription payment retry simulated.",
+
+        "UPDATE_PAYMENT_METHOD":
+            "Payment method update simulated.",
+
+        "SEND_RECEIVABLES_REMINDER":
+            "Receivables reminder simulated.",
+
+        "RETRY_MANDATE":
+            "Mandate retry simulated.",
+
+        "FOLLOW_UP_PROMISE":
+            "Promise-to-pay follow-up simulated.",
+
+        "SEND_HINGLISH_RECOVERY_MESSAGE":
+            "Hinglish recovery communication simulated.",
+    }
+
 
     return {
         "action": action,
         "status": "SUCCESS",
         "success": True,
         "recovered": True,
-        "message": (
-            "Payment successfully recovered "
-            "through the simulated recovery action."
+        "message": messages.get(
+            action,
+            "Recovery action simulated successfully."
         )
     }

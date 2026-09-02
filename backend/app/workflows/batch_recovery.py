@@ -21,22 +21,18 @@ class BatchRecoveryEngine:
 
         total_at_risk = 0.0
 
-        total_expected_recovery = 0.0
+        total_expected = 0.0
 
         total_recovered = 0.0
 
-        actions_executed = 0
+        executed = 0
 
-        actions_blocked = 0
+        blocked = 0
 
-        actions_failed = 0
+        failed = 0
 
-        processing_errors = 0
+        errors = 0
 
-
-        # =====================================================
-        # PROCESS EVERY OPPORTUNITY
-        # =====================================================
 
         for index, opportunity in enumerate(
             opportunities,
@@ -49,10 +45,6 @@ class BatchRecoveryEngine:
             )
 
 
-            # ---------------------------------------------
-            # Count revenue at risk regardless of outcome
-            # ---------------------------------------------
-
             total_at_risk += float(
                 opportunity.amount_at_risk
             )
@@ -64,17 +56,12 @@ class BatchRecoveryEngine:
                     opportunity
                 )
 
-
                 results.append(
                     result
                 )
 
 
-                # -----------------------------------------
-                # Expected recovery
-                # -----------------------------------------
-
-                total_expected_recovery += float(
+                total_expected += float(
                     result[
                         "agent_decision"
                     ].get(
@@ -84,10 +71,6 @@ class BatchRecoveryEngine:
                 )
 
 
-                # -----------------------------------------
-                # Actual recovery
-                # -----------------------------------------
-
                 total_recovered += float(
                     result.get(
                         "recovered_amount",
@@ -96,11 +79,7 @@ class BatchRecoveryEngine:
                 )
 
 
-                # -----------------------------------------
-                # Action status
-                # -----------------------------------------
-
-                action_status = result[
+                status = result[
                     "action"
                 ].get(
                     "status",
@@ -108,58 +87,41 @@ class BatchRecoveryEngine:
                 )
 
 
-                if action_status == "BLOCKED":
+                if status == "SUCCESS":
 
-                    actions_blocked += 1
+                    executed += 1
 
+                elif status == "BLOCKED":
 
-                elif action_status == "SUCCESS":
-
-                    actions_executed += 1
-
-
-                elif action_status == "FAILED":
-
-                    actions_failed += 1
-
+                    blocked += 1
 
                 else:
 
-                    actions_failed += 1
+                    failed += 1
 
 
             except Exception as exc:
 
-                processing_errors += 1
+                errors += 1
 
-                actions_failed += 1
-
+                failed += 1
 
                 print(
-                    f"  ❌ Processing error: {exc}"
+                    f"  ERROR: {exc}"
                 )
 
 
-        # =====================================================
-        # RECOVERY RATE
-        # =====================================================
+        recovery_rate = (
 
-        if total_at_risk > 0:
+            total_recovered
+            /
+            total_at_risk
 
-            recovery_rate = (
-                total_recovered
-                /
-                total_at_risk
-            )
+            if total_at_risk > 0
 
-        else:
+            else 0
+        )
 
-            recovery_rate = 0.0
-
-
-        # =====================================================
-        # RETURN
-        # =====================================================
 
         return {
 
@@ -169,16 +131,16 @@ class BatchRecoveryEngine:
                     len(opportunities),
 
                 "actions_executed":
-                    actions_executed,
+                    executed,
 
                 "actions_blocked":
-                    actions_blocked,
+                    blocked,
 
                 "actions_failed":
-                    actions_failed,
+                    failed,
 
                 "processing_errors":
-                    processing_errors,
+                    errors,
 
                 "total_amount_at_risk":
                     round(
@@ -188,7 +150,7 @@ class BatchRecoveryEngine:
 
                 "total_expected_recovery":
                     round(
-                        total_expected_recovery,
+                        total_expected,
                         2
                     ),
 
@@ -202,9 +164,9 @@ class BatchRecoveryEngine:
                     round(
                         recovery_rate,
                         4
-                    )
+                    ),
             },
 
             "results":
-                results
+                results,
         }
