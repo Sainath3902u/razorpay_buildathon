@@ -1,15 +1,50 @@
 import { API_BASE_URL } from "@/config/env";
-import { DatasetUploadResponse } from "@/types/dataset";
-import { Opportunity } from "@/types/opportunity";
+import {
+  DatasetUploadResponse,
+} from "@/types/dataset";
+import {
+  Opportunity,
+} from "@/types/opportunity";
 
-async function parseResponse<T>(response: Response): Promise<T> {
-  const data = await response.json().catch(() => null);
+export interface AnalysisSummary {
+  total_opportunities: number;
+  total_amount_at_risk: number;
+  total_expected_value: number;
+
+  category_counts: {
+    RECOVER: number;
+    PREVENT: number;
+    GROW: number;
+  };
+
+  priority_counts: {
+    HIGH: number;
+    MEDIUM: number;
+    LOW: number;
+  };
+}
+
+export interface AnalysisResponse
+  extends DatasetUploadResponse {
+  summary: AnalysisSummary;
+  opportunities: Opportunity[];
+}
+
+
+async function parseResponse<T>(
+  response: Response
+): Promise<T> {
+
+  const data = await response
+    .json()
+    .catch(() => null);
 
   if (!response.ok) {
+
     const message =
       data?.detail ||
       data?.message ||
-      "Something went wrong";
+      `Request failed with status ${response.status}`;
 
     throw new Error(message);
   }
@@ -17,25 +52,74 @@ async function parseResponse<T>(response: Response): Promise<T> {
   return data as T;
 }
 
+
 export async function uploadDataset(
   file: File
-): Promise<DatasetUploadResponse> {
+): Promise<AnalysisResponse> {
+
   const formData = new FormData();
 
-  formData.append("file", file);
-
-  const response = await fetch(
-    `${API_BASE_URL}/api/upload`,
-    {
-      method: "POST",
-      body: formData,
-    }
+  formData.append(
+    "file",
+    file
   );
 
-  return parseResponse<DatasetUploadResponse>(response);
+  let response: Response;
+
+  try {
+
+    response = await fetch(
+      `${API_BASE_URL}/api/upload`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+
+  } catch (error) {
+
+    throw new Error(
+      "Cannot connect to FastAPI. Make sure the backend is running on http://localhost:8000."
+    );
+  }
+
+  return parseResponse<AnalysisResponse>(
+    response
+  );
 }
 
+
+export async function getOpportunities(
+  datasetId: string
+): Promise<AnalysisResponse> {
+
+  let response: Response;
+
+  try {
+
+    response = await fetch(
+      `${API_BASE_URL}/api/opportunities/${datasetId}`,
+      {
+        method: "GET",
+        cache: "no-store",
+      }
+    );
+
+  } catch (error) {
+
+    throw new Error(
+      "Cannot connect to FastAPI. Make sure the backend is running on http://localhost:8000."
+    );
+  }
+
+  return parseResponse<AnalysisResponse>(
+    response
+  );
+}
+
+
 export async function checkHealth() {
+
   const response = await fetch(
     `${API_BASE_URL}/health`,
     {
@@ -43,27 +127,7 @@ export async function checkHealth() {
     }
   );
 
-  return parseResponse<{ status: string }>(response);
-}
-
-/*
- * This endpoint can be enabled after adding
- * /api/opportunities or /api/analyze to FastAPI.
- */
-export async function getOpportunities(
-  datasetId: string
-): Promise<Opportunity[]> {
-  const response = await fetch(
-    `${API_BASE_URL}/api/opportunities/${datasetId}`,
-    {
-      cache: "no-store",
-    }
-  );
-
-  const data =
-    await parseResponse<{
-      opportunities: Opportunity[];
-    }>(response);
-
-  return data.opportunities;
+  return parseResponse<{
+    status: string;
+  }>(response);
 }

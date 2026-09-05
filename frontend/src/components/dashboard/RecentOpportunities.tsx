@@ -1,43 +1,89 @@
+"use client";
+
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
-import { Card } from "../ui/Card";
-import { Badge } from "../ui/Badge";
-import { formatCurrency } from "@/lib/utils";
 
-const opportunities = [
-  {
-    id: "CHK-DROP-104",
-    type: "Checkout Drop-off",
-    customer: "CUST-104",
-    value: 420000,
-    priority: "HIGH",
-  },
-  {
-    id: "PREVENT-CHURN-221",
-    type: "Churn Risk",
-    customer: "CUST-221",
-    value: 210000,
-    priority: "MEDIUM",
-  },
-  {
-    id: "SUB-FAIL-309",
-    type: "Failed Subscription",
-    customer: "CUST-309",
-    value: 175000,
-    priority: "HIGH",
-  },
-];
+import {
+  ArrowUpRight,
+  AlertCircle,
+} from "lucide-react";
 
-export function RecentOpportunities() {
+import { Opportunity } from "@/types/opportunity";
+
+interface RecentOpportunitiesProps {
+  opportunities: Opportunity[];
+}
+
+export function RecentOpportunities({
+  opportunities,
+}: RecentOpportunitiesProps) {
+  const formatCurrency = (amount: number) => {
+    if (!Number.isFinite(amount)) {
+      return "₹0";
+    }
+
+    if (amount >= 10000000) {
+      return `₹${(
+        amount / 10000000
+      ).toFixed(2)}Cr`;
+    }
+
+    if (amount >= 100000) {
+      return `₹${(
+        amount / 100000
+      ).toFixed(2)}L`;
+    }
+
+    if (amount >= 1000) {
+      return `₹${(
+        amount / 1000
+      ).toFixed(1)}K`;
+    }
+
+    return `₹${Math.round(
+      amount
+    ).toLocaleString("en-IN")}`;
+  };
+
+  /*
+   * Show highest-value real opportunities first.
+   */
+  const recentOpportunities = [
+    ...opportunities,
+  ]
+    .sort(
+      (a, b) =>
+        b.expected_value -
+        a.expected_value
+    )
+    .slice(0, 5);
+
+  const priorityClass = (
+    priority: string
+  ) => {
+    switch (priority) {
+      case "HIGH":
+        return "bg-red-50 text-red-600";
+
+      case "MEDIUM":
+        return "bg-amber-50 text-amber-600";
+
+      default:
+        return "bg-slate-100 text-slate-600";
+    }
+  };
+
   return (
-    <Card className="overflow-hidden">
-      <div className="flex items-center justify-between border-b border-slate-100 p-6">
+    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-slate-100 px-7 py-6">
+
         <div>
-          <h2 className="font-semibold text-slate-950">
+          <h2 className="text-lg font-semibold text-slate-950">
             Highest-value opportunities
           </h2>
 
-          <p className="mt-1 text-xs text-slate-400">
+          <p className="mt-1 text-sm text-slate-400">
             Revenue actions worth prioritising
           </p>
         </div>
@@ -48,48 +94,97 @@ export function RecentOpportunities() {
         >
           View all
         </Link>
+
       </div>
 
-      <div className="divide-y divide-slate-100">
-        {opportunities.map((item) => (
-          <div
-            key={item.id}
-            className="flex items-center justify-between p-5"
-          >
-            <div>
-              <div className="flex items-center gap-3">
-                <Badge
-                  variant={
-                    item.priority === "HIGH"
-                      ? "high"
-                      : "medium"
-                  }
-                >
-                  {item.priority}
-                </Badge>
+      {/* Empty state */}
+      {recentOpportunities.length === 0 ? (
+        <div className="px-7 py-12 text-center">
 
-                <span className="font-medium text-slate-900">
-                  {item.type}
-                </span>
+          <AlertCircle className="mx-auto h-8 w-8 text-slate-300" />
+
+          <p className="mt-3 text-sm font-medium text-slate-600">
+            No opportunities detected
+          </p>
+
+          <p className="mt-1 text-xs text-slate-400">
+            Upload a dataset to see revenue opportunities.
+          </p>
+
+        </div>
+      ) : (
+        <div>
+          {recentOpportunities.map(
+            (opportunity) => (
+              <div
+                key={
+                  opportunity.opportunity_id
+                }
+                className="flex items-center justify-between border-b border-slate-100 px-7 py-5 last:border-b-0"
+              >
+
+                {/* Left */}
+                <div className="min-w-0">
+
+                  <div className="flex items-center gap-3">
+
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs font-semibold ${priorityClass(
+                        opportunity.priority
+                      )}`}
+                    >
+                      {opportunity.priority}
+                    </span>
+
+                    <h3 className="truncate text-sm font-medium text-slate-900">
+                      {opportunity.opportunity_type}
+                    </h3>
+
+                  </div>
+
+                  <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-400">
+
+                    {opportunity.customer_id && (
+                      <span>
+                        {opportunity.customer_id}
+                      </span>
+                    )}
+
+                    <span>
+                      {opportunity.opportunity_id}
+                    </span>
+
+                  </div>
+
+                </div>
+
+                {/* Right */}
+                <div className="ml-6 flex shrink-0 items-center gap-5">
+
+                  <div className="text-right">
+
+                    <div className="text-sm font-semibold text-slate-900">
+                      {formatCurrency(
+                        opportunity.expected_value
+                      )}
+                    </div>
+
+                    <div className="mt-1 text-xs text-slate-400">
+                      Expected value
+                    </div>
+
+                  </div>
+
+                  <ArrowUpRight className="h-5 w-5 text-slate-400" />
+
+                </div>
+
               </div>
+            )
+          )}
+        </div>
+      )}
 
-              <p className="mt-2 text-xs text-slate-400">
-                {item.customer}
-              </p>
-            </div>
-
-            <div className="flex items-center gap-5">
-              <span className="font-bold text-slate-950">
-                {formatCurrency(item.value)}
-              </span>
-
-              <button className="rounded-lg p-2 text-slate-400 hover:bg-slate-100">
-                <ArrowUpRight size={18} />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </Card>
+    </div>
   );
 }
